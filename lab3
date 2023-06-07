@@ -1,0 +1,92 @@
+#include <iostream>
+#include <string>
+#include <climits>
+#include <Windows.h>
+
+struct Node {
+    int key;
+    std::string word;
+    Node* left;
+    Node* right;
+};
+
+Node* newNode(int key, std::string word) {
+    Node* node = new Node;
+    node->key = key;
+    node->word = word;
+    node->left = node->right = nullptr;
+    return node;
+}
+
+Node* insert(Node* node, int key, std::string word) {
+    if (node == nullptr) return newNode(key, word);
+
+    if (key < node->key)
+        node->left = insert(node->left, key, word);
+    else if (key > node->key)
+        node->right = insert(node->right, key, word);
+
+    return node;
+}
+
+int height(Node* node) {
+    if (node == nullptr)
+        return 0;
+    else {
+        int lheight = height(node->left);
+        int rheight = height(node->right);
+
+        if (lheight > rheight)
+            return(lheight + 1);
+        else return(rheight + 1);
+    }
+}
+
+std::string minWordInLevel(Node* node, int level) {
+    if (node == nullptr)
+        return "";
+    if (level == 1)
+        return node->word;
+    else if (level > 1) {
+        std::string leftWord = minWordInLevel(node->left, level - 1);
+        std::string rightWord = minWordInLevel(node->right, level - 1);
+        if (leftWord.empty()) return rightWord;
+        if (rightWord.empty()) return leftWord;
+        return (leftWord.size() < rightWord.size()) ? leftWord : rightWord;
+    }
+    return "";
+}
+
+std::string minWord(Node* root) {
+    int h = height(root);
+    std::string minWord = "";
+    int minSize = INT_MAX;
+    for (int i = 1; i <= h; i++) {
+        std::string word = minWordInLevel(root, i);
+        if (!word.empty() && word.size() < minSize) {
+            minSize = word.size();
+            minWord = word;
+        }
+    }
+    return minWord;
+}
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    setlocale(0, "ru");
+    Node* root = nullptr;
+    int N;
+    std::cout << "Введите количество узлов: ";
+    std::cin >> N;
+    for (int i = 0; i < N; i++) {
+        int key;
+        std::string word;
+        std::cout << "Введите ключ(число), затем слово для узла " << i + 1 << ": ";
+        std::cin >> key >> word;
+        root = insert(root, key, word);
+    }
+    std::string result = minWord(root);
+    std::cout << "Самое короткое слово в самой глубокой ветке: " << result << "\n";
+    return 0;
+}
