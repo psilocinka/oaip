@@ -1,0 +1,93 @@
+#include <iostream>
+#include <cstring>
+#include <Windows.h>
+
+const int HASH_TABLE_SIZE = 20;
+const int ARRAY_SIZE = 9;
+
+struct Book {
+    char title[50];
+    int pages;
+    int year;
+};
+
+int hashFunction(int key) {
+    return key % HASH_TABLE_SIZE;
+}
+
+void quadraticProbing(Book hashTable[], Book book) {
+    int index = hashFunction(book.pages);
+    int i = 1;
+    while (strcmp(hashTable[index].title, "") != 0) {
+        index = (index + i * i) % HASH_TABLE_SIZE;
+        i++;
+    }
+    hashTable[index] = book;
+}
+
+int search(Book hashTable[], int key) {
+    int index = hashFunction(key);
+    int i = 1;
+    while (strcmp(hashTable[index].title, "") != 0) {
+        if (hashTable[index].pages == key) {
+            return index;
+        }
+        index = (index + i * i) % HASH_TABLE_SIZE;
+        i++;
+    }
+    return -1;
+}
+
+int main() {
+    setlocale(0, "ru");
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+
+    Book books[ARRAY_SIZE];
+    Book hashTable[HASH_TABLE_SIZE];
+
+    for (int i = 0; i < HASH_TABLE_SIZE; i++) {
+        strcpy_s(hashTable[i].title, "");
+        hashTable[i].pages = 0;
+        hashTable[i].year = 0;
+    }
+
+  
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        std::cout << "Введите название, количество страниц и год издания книги #" << i + 1 << ": ";
+        std::cin >> books[i].title >> books[i].pages >> books[i].year;
+        quadraticProbing(hashTable, books[i]);
+    }
+
+
+    std::cout << "\nКниги: \n";
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        std::cout << "Название: " << books[i].title << ", Страницы: " << books[i].pages << ", Год: " << books[i].year << "\n";
+    }
+
+    std::cout << "\nХеш-таблица: \n";
+    for (int i = 0; i < HASH_TABLE_SIZE; i++) {
+        if (strcmp(hashTable[i].title, "") != 0) {
+            std::cout << "Индекс: " << i << ", Название: " << hashTable[i].title << ", Страницы: " << hashTable[i].pages << ", Год: " << hashTable[i].year << "\n";
+        }
+        else {
+            std::cout << "Индекс: " << i << ", Пусто\n";
+        }
+    }
+
+ 
+    int pages;
+    std::cout << "\nВведите количество страниц для поиска: ";
+    std::cin >> pages;
+    int index = search(hashTable, pages);
+
+    if (index != -1) {
+        std::cout << "\nКнига с количеством страниц " << pages << " найдена под индексом " << index << ": " << "\n";
+        std::cout << "Название: " << hashTable[index].title << ", Страницы: " << hashTable[index].pages << ", Год: " << hashTable[index].year << "\n";
+    }
+    else {
+        std::cout << "\nКнига с количеством страниц " << pages << " не найдена\n";
+    }
+
+    return 0;
+}
