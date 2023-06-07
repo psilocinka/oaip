@@ -1,0 +1,79 @@
+#include <iostream>
+#include <ctime>
+#include <climits>
+
+const int HASH_TABLE_SIZE = 20;
+const int ARRAY_SIZE = 16;
+
+int hashFunction(int key) {
+    return key % HASH_TABLE_SIZE;
+}
+
+void linearProbing(int hashTable[], int key) {
+    int index = hashFunction(key);
+    while (hashTable[index] != INT_MIN) {
+        index = (index + 1) % HASH_TABLE_SIZE;
+    }
+    hashTable[index] = key;
+}
+
+int search(int hashTable[], int key) {
+    int index = hashFunction(key);
+    while (hashTable[index] != INT_MIN) {
+        if (hashTable[index] == key) {
+            return index;
+        }
+        index = (index + 1) % HASH_TABLE_SIZE;
+    }
+    return -1;
+}
+
+int main() {
+    setlocale(0, "ru");
+    srand(time(nullptr));
+
+    int arr[ARRAY_SIZE];
+    int hashTable[HASH_TABLE_SIZE];
+    for (int i = 0; i < HASH_TABLE_SIZE; i++) {
+        hashTable[i] = INT_MIN;
+    }
+
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        arr[i] = 45000 + rand() % (76000 - 45000 + 1);
+    }
+
+  
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        linearProbing(hashTable, arr[i]);
+    }
+
+    std::cout << "Исходный массив: ";
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << "\n";
+
+    
+    std::cout << "Хеш-таблица: ";
+    for (int i = 0; i < HASH_TABLE_SIZE; i++) {
+        if (hashTable[i] != INT_MIN) {
+            std::cout << hashTable[i] << " ";
+        }
+        else {
+            std::cout << "_ ";
+        }
+    }
+    std::cout << "\n";
+
+    int value = arr[rand() % ARRAY_SIZE]; 
+    int index = search(hashTable, value);
+
+    if (index != -1) {
+        std::cout << "Значение " << value << " найдено под индексом " << index << "\n";
+    }
+    else {
+        std::cout << "Значение " << value << " не найдено\n";
+    }
+
+    return 0;
+}
